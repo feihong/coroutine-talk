@@ -1,2 +1,3 @@
-# coroutine-talk
-A talk about coroutines in JavaScript
+# Coroutines in JavaScript
+
+A talk about coroutines in JavaScript.
