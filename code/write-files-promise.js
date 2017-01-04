@@ -1,7 +1,7 @@
 const Promise = require('bluebird')
 const fs = Promise.promisifyAll(require('fs'))
 
-let fileNames = ['1.txt', '2.txt', '3.txt']
-Promise.each(fileNames, name => {
-  return fs.writeFileAsync(name, name + ' foobar').delay(1000)
+let fileNames = ['a.txt', 'b.txt', 'c.txt']
+Promise.each(fileNames, (fileName, i) => {
+  return fs.writeFileAsync(fileName, i + ' foobar').delay(1000)
 })

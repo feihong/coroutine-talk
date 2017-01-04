@@ -1,13 +1,14 @@
 const fs = require('fs')
 
-let fileNames = ['1.txt', '2.txt', '3.txt']
+let fileNames = ['a.txt', 'b.txt', 'c.txt']
 
-function writeFiles(fileNames) {
+function writeFiles(index, fileNames) {
   if (fileNames.length === 0) { return }
-  var name = fileNames.shift()
-  fs.writeFile(name, name + ' foobar', err => {
-    writeFiles(fileNames)
+
+  let fileName = fileNames.shift()
+  fs.writeFile(fileName, index + ' foobar', () => {
+    writeFiles(index + 1, fileNames)
   })
 }
 
-writeFiles(fileNames)
+writeFiles(0, fileNames)
