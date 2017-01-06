@@ -2,6 +2,7 @@ const koa = require('koa')
 const serve = require('koa-static')
 const route = require('koa-route')
 const axios = require('axios')
+const moment = require('moment')
 const app = koa()
 
 
@@ -15,16 +16,17 @@ function *movies() {
   let {lat, lng} = this.request.query
   let params = {
     startDate: moment().format('YYYY-MM-DD'),
-    api_key: GRACENOTE_API_KEY
+    api_key: GRACENOTE_API_KEY,
     lat,
     lng,
   }
-  let movies = yield axios.get(url, {params}).then(res => res.data)
+  let movies = yield axios.get(GRACENOTE_URL, {params}).then(res => res.data)
   this.body = movies.map(movie => {
     return {
       title: movie.title,
       year: movie.releaseYear,
       genres: movie.genres,
+      showtime: movie.showtimes[0],
     }
   })
 }

@@ -3,8 +3,10 @@ $(document).ready(() => {
 
 Promise.coroutine(function *() {
   let coords = yield getCurrentPosition()
-  console.log(coords)
+  // console.log(coords)
   $('.location').text(`Your location is (${coords.latitude}, ${coords.longitude})`)
+  let movies = yield $.getJSON('/movies', {lat: coords.latitude, lng: coords.longitude})
+  console.log(movies)
 })()
 
 
