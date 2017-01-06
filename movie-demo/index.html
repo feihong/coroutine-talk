@@ -16,8 +16,9 @@
   <div class='movies' v-for='movie in movies'>
     <div class='movie'>
       <img v-if='movie.poster' v-bind:src='movie.poster' height='100'>
+      <span v-else class='glyphicon glyphicon-repeat spinner'></span>
       <strong>{{ movie.title }}</strong>,
-      <span v-if='movie.rating !== null'>rating: {{ movie.rating.toFixed(1) }}, </span>
+      <span v-if='movie.rating !== null' class='rating'>rating: {{ movie.rating.toFixed(1) }}, </span>
       next showtime: {{ movie.showtime.time }} at {{ movie.showtime.venue }}
     </div>
   </div>

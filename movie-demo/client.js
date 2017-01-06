@@ -25,8 +25,10 @@ const main = co.wrap(function *(app) {
     // }
     movie.rating = data.rating
     movie.poster = data.poster
-    app.movies.sort((a, b) => b.rating - a.rating)
   }
+
+  // Sort movies by rating.
+  app.movies.sort((a, b) => b.rating - a.rating)
 
   app.status = 'Announcing top 5 rated movies...'
   let top5 = app.movies.slice(0, 5)

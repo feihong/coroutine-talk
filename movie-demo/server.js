@@ -10,10 +10,10 @@ const GRACENOTE_API_KEY = process.env.GRACENOTE_API_KEY
 const GRACENOTE_URL = 'http://data.tmsapi.com/v1.1/movies/showings'
 const OMDB_URL = 'http://omdbapi.com/'
 
-app.use(route.get('/movies/', movies))
-app.use(route.get('/rating/', ratingAndPoster))
-// app.use(route.get('/movies/', fakeMovies))
-// app.use(route.get('/rating/', fakeRatingAndPoster))
+// app.use(route.get('/movies/', movies))
+// app.use(route.get('/rating/', ratingAndPoster))
+app.use(route.get('/movies/', fakeMovies))
+app.use(route.get('/rating/', fakeRatingAndPoster))
 
 
 function *movies() {
@@ -66,7 +66,7 @@ function *fakeMovies() {
 }
 
 function *fakeRatingAndPoster() {
-  yield new Promise(resolve => setTimeout(resolve, 100))
+  yield new Promise(resolve => setTimeout(resolve, 400))
   this.body = {
     rating: Math.floor(Math.random() * 1000) / 100,
     poster: 'https://images-na.ssl-images-amazon.com/images/M/MV5BMzUzNDM2NzM2MV5BMl5BanBnXkFtZTgwNTM3NTg4OTE@._V1_SX300.jpg'
