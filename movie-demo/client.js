@@ -15,12 +15,19 @@ co(function *() {
   for (let movie of movies) {
     let data = yield $.getJSON(
       '/rating', {title: movie.title, year: movie.year})
+    // if (data.rating === null) {
+    //   console.log(movie.title, data)
+    // }
     movie.rating = data.rating
+    movie.poster = data.poster
   }
+  // Ignore movies that don't have a rating.
+  movies = movies.filter(x => x.rating === null)
   movies.sort((a, b) => b.rating - a.rating)
 
   for (let movie of movies) {
-    $(`<div>
+    $(`<div class='movie'>
+        <img src='${movie.poster}' height='150'>
         <strong>${movie.title}</strong>,
         rating: ${movie.rating.toFixed(1)},
         next showtime: ${movie.showtime.time} at ${movie.showtime.venue}

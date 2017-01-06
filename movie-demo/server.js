@@ -10,10 +10,10 @@ const GRACENOTE_API_KEY = process.env.GRACENOTE_API_KEY
 const GRACENOTE_URL = 'http://data.tmsapi.com/v1.1/movies/showings'
 const OMDB_URL = 'http://omdbapi.com/'
 
-// app.use(route.get('/movies/', movies))
-// app.use(route.get('/rating/', rating))
-app.use(route.get('/movies/', fakeMovies))
-app.use(route.get('/rating/', fakeRating))
+app.use(route.get('/movies/', movies))
+app.use(route.get('/rating/', ratingAndPoster))
+// app.use(route.get('/movies/', fakeMovies))
+// app.use(route.get('/rating/', fakeRatingAndPoster))
 
 
 function *movies() {
@@ -28,22 +28,27 @@ function *movies() {
   this.body = convertMovies(res.data)
 }
 
-function *rating() {
+function *ratingAndPoster() {
   let {title, year} = this.request.query
   let params = {
     t: title,
     y: year,
     type: 'movie',
-    tomatoes: 'true'
+    tomatoes: 'true',
+    plot: 'short',
   }
   let res = yield axios.get(OMDB_URL, {params})
   let movie = res.data
-  let avgRating = (
-    (parseInt(movie.Metascore) / 10) +
-    parseFloat(movie.imdbRating) +
+  let ratings = [
+    (parseInt(movie.Metascore) / 10),
+    parseFloat(movie.imdbRating),
     parseFloat(movie.tomatoRating)
-  ) / 3
-  this.body = {rating: avgRating}
+  ].filter(x => !isNaN(x))
+  let avgRating = ratings.reduce((a, b) => a + b, 0) / ratings.length
+  this.body = {
+    rating: isNaN(avgRating) ? null : avgRating, 
+    poster: movie.Poster || null
+  }
 }
 
 function *fakeMovies() {
@@ -55,11 +60,15 @@ function *fakeMovies() {
   this.body = convertMovies(movies)
 }
 
-function *fakeRating() {
+function *fakeRatingAndPoster() {
   yield new Promise(resolve => setTimeout(resolve, 100))
-  this.body = {rating: Math.floor(Math.random() * 1000) / 100}
+  this.body = {
+    rating: Math.floor(Math.random() * 1000) / 100,
+    poster: 'https://images-na.ssl-images-amazon.com/images/M/MV5BMzUzNDM2NzM2MV5BMl5BanBnXkFtZTgwNTM3NTg4OTE@._V1_SX300.jpg'
+  }
 }
 
+// Simplify the content that you get from the Gracenote API.
 function convertMovies(movies) {
   return movies.map(movie => {
     let showtime = movie.showtimes[0]
