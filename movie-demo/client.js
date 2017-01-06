@@ -12,13 +12,14 @@ Promise.coroutine(function *() {
       '/rating', {title: movie.title, year: movie.year})
     movie.rating = data.rating
   }
-  debugger
   movies.sort((a, b) => b.rating - a.rating)
   for (let movie of movies) {
+    let dt = moment(movie.showtime)
+    let time = dt.format('h:mm A')
     $(`<div>
         <strong>${movie.title}</strong>,
         rating: ${movie.rating},
-        next showtime: ${movie.showtime}
+        next showtime: ${time}
       </div>`).appendTo('.movies')
   }
 })()
