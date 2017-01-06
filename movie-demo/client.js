@@ -1,37 +1,34 @@
 (function() {
 //=============================================================================
 
-const main = co.wrap(function *(app) {
+const main = co.wrap(function *() {
   let coords
   try {
     coords = yield getCurrentPosition()
-    app.location = `Your location is (${coords.latitude}, ${coords.longitude})`
+    this.location = `Your location is (${coords.latitude}, ${coords.longitude})`
   } catch (err) {
-    app.location = `Could not get location: ${err}`
+    this.location = `Could not get location: ${err}`
     return
   }
 
-  app.status = 'Fetching movies...'
-  app.movies = yield $.getJSON('/movies', {lat: coords.latitude, lng: coords.longitude})
+  this.status = 'Fetching movies...'
+  this.movies = yield $.getJSON(
+    '/movies', {lat: coords.latitude, lng: coords.longitude})
 
-  app.status = 'Fetching ratings and posters...'
-  let movies = [...app.movies]
-  for (let movie of movies) {
-    app.status = `Fetching rating and poster for ${movie.title}`
+  this.status = 'Fetching ratings and posters...'
+  for (let movie of this.movies) {
+    this.status = `Fetching rating and poster for ${movie.title}`
     let data = yield $.getJSON(
       '/rating', {title: movie.title, year: movie.year})
-    // if (data.rating === null) {
-    //   console.log(movie.title, data)
-    // }
     movie.rating = data.rating
     movie.poster = data.poster
   }
 
-  // Sort movies by rating.
-  app.movies.sort((a, b) => b.rating - a.rating)
+  // All rating data has been downloaded, so sort movies by rating, descending.
+  this.movies.sort((a, b) => b.rating - a.rating)
 
-  app.status = 'Announcing top 5 rated movies...'
-  let top5 = app.movies.slice(0, 5)
+  this.status = 'Announcing top 5 rated movies...'
+  let top5 = this.movies.slice(0, 5)
   try {
     for (let movie of top5) {
       speak(`${movie.title}, playing ${movie.showtime.time} at ${movie.showtime.venue}`)
@@ -40,7 +37,7 @@ const main = co.wrap(function *(app) {
     console.log(`Unable to speak: ${err}`)
   }
 
-  app.status = ''
+  this.status = ''
 })
 
 const app = new Vue({
@@ -50,9 +47,7 @@ const app = new Vue({
     status: '',
     movies: [],
   },
-  created() {
-    main(this)
-  }
+  created: main
 })
 
 function getCurrentPosition() {
