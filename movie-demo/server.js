@@ -57,7 +57,7 @@ function *fakeMovies() {
 
 function *fakeRating() {
   yield new Promise(resolve => setTimeout(resolve, 100))
-  this.body = {rating: Math.floor(Math.random() * 100) / 10}
+  this.body = {rating: Math.floor(Math.random() * 1000) / 100}
 }
 
 function convertMovies(movies) {

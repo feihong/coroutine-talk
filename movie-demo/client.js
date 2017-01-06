@@ -1,33 +1,46 @@
 $(document).ready(() => {
 //=============================================================================
 
-Promise.coroutine(function *() {
-  let coords = yield getCurrentPosition()
-  // console.log(coords)
-  $('.location').text(`Your location is (${coords.latitude}, ${coords.longitude})`)
+co(function *() {
+  let coords
+  try {
+    coords = yield getCurrentPosition()
+    $('.location').text(`Your location is (${coords.latitude}, ${coords.longitude})`)
+  } catch (err) {
+    $('.location').text(`Could not get location: ${err}`)
+    return
+  }
+
   let movies = yield $.getJSON('/movies', {lat: coords.latitude, lng: coords.longitude})
-  console.log(movies[0])
   for (let movie of movies) {
     let data = yield $.getJSON(
       '/rating', {title: movie.title, year: movie.year})
     movie.rating = data.rating
   }
   movies.sort((a, b) => b.rating - a.rating)
+
   for (let movie of movies) {
     $(`<div>
         <strong>${movie.title}</strong>,
-        rating: ${movie.rating},
+        rating: ${movie.rating.toFixed(1)},
         next showtime: ${movie.showtime.time} at ${movie.showtime.venue}
       </div>`).appendTo('.movies')
   }
 
-  let top10 = movies.slice(0, 10)
-  for (let movie of top10) {
-    speak(movie.title)
+  try {
+    let top5 = movies.slice(0, 5)
+    for (let movie of top5) {
+      speak(`${movie.title}, playing ${movie.showtime.time} at ${movie.showtime.venue}`)
+    }
+  } catch (err) {
+    console.log(`Unable to speak: ${err}`)
   }
-})()
+})
 
 function getCurrentPosition() {
+  if (navigator.geolocation === undefined) {
+    return Promise.reject(new Error('Geolocation is not available'))
+  }
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(
       position => resolve(position.coords),
@@ -38,7 +51,7 @@ function getCurrentPosition() {
 
 function speak(text) {
   if (window.speechSynthesis === undefined) {
-    return Promise.resolve()
+    return Promise.reject(new Error('Speech synthesis is not available'))
   }
 
   return new Promise((resolve, reject) => {
