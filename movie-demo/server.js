@@ -25,14 +25,7 @@ function *movies() {
     lng,
   }
   let res = yield axios.get(GRACENOTE_URL, {params})
-  this.body = res.data.map(movie => {
-    return {
-      title: movie.title,
-      year: movie.releaseYear,
-      genres: movie.genres,
-      showtime: movie.showtimes[0].dateTime,
-    }
-  })
+  this.body = convertMovies(res.data)
 }
 
 function *rating() {
@@ -59,18 +52,28 @@ function *fakeMovies() {
     fs.readFile('gracenote-response.json', (err, data) => resolve(data))
   })
   let movies = JSON.parse(data)
-  this.body = movies.map(movie => {
+  this.body = convertMovies(movies)
+}
+
+function *fakeRating() {
+  yield new Promise(resolve => setTimeout(resolve, 100))
+  this.body = {rating: Math.floor(Math.random() * 100) / 10}
+}
+
+function convertMovies(movies) {
+  return movies.map(movie => {
+    let showtime = movie.showtimes[0]
+    let time = moment(showtime.dateTime).format('h:mm A')
     return {
       title: movie.title,
       year: movie.releaseYear,
       genres: movie.genres,
-      showtime: movie.showtimes[0].dateTime,
+      showtime: {
+        time,
+        venue: showtime.theatre.name
+      },
     }
   })
-}
-
-function *fakeRating() {
-  this.body = {rating: Math.floor(Math.random() * 100) / 10}
 }
 
 app.use(serve('.'))
