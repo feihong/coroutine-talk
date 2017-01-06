@@ -1,18 +1,23 @@
-$(document).ready(() => {
+(function() {
 //=============================================================================
 
-co(function *() {
+const main = co.wrap(function *(app) {
   let coords
   try {
     coords = yield getCurrentPosition()
-    $('.location').text(`Your location is (${coords.latitude}, ${coords.longitude})`)
+    app.location = `Your location is (${coords.latitude}, ${coords.longitude})`
   } catch (err) {
-    $('.location').text(`Could not get location: ${err}`)
+    app.location = `Could not get location: ${err}`
     return
   }
 
-  let movies = yield $.getJSON('/movies', {lat: coords.latitude, lng: coords.longitude})
+  app.status = 'Fetching movies...'
+  app.movies = yield $.getJSON('/movies', {lat: coords.latitude, lng: coords.longitude})
+
+  app.status = 'Fetching ratings and posters...'
+  let movies = [...app.movies]
   for (let movie of movies) {
+    app.status = `Fetching rating and poster for ${movie.title}`
     let data = yield $.getJSON(
       '/rating', {title: movie.title, year: movie.year})
     // if (data.rating === null) {
@@ -20,27 +25,31 @@ co(function *() {
     // }
     movie.rating = data.rating
     movie.poster = data.poster
-  }
-  // Ignore movies that don't have a rating.
-  movies = movies.filter(x => x.rating === null)
-  movies.sort((a, b) => b.rating - a.rating)
-
-  for (let movie of movies) {
-    $(`<div class='movie'>
-        <img src='${movie.poster}' height='150'>
-        <strong>${movie.title}</strong>,
-        rating: ${movie.rating.toFixed(1)},
-        next showtime: ${movie.showtime.time} at ${movie.showtime.venue}
-      </div>`).appendTo('.movies')
+    app.movies.sort((a, b) => b.rating - a.rating)
   }
 
+  app.status = 'Announcing top 5 rated movies...'
+  let top5 = app.movies.slice(0, 5)
   try {
-    let top5 = movies.slice(0, 5)
     for (let movie of top5) {
       speak(`${movie.title}, playing ${movie.showtime.time} at ${movie.showtime.venue}`)
     }
   } catch (err) {
     console.log(`Unable to speak: ${err}`)
+  }
+
+  app.status = ''
+})
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    location: '',
+    status: '',
+    movies: [],
+  },
+  created() {
+    main(this)
   }
 })
 
@@ -56,6 +65,7 @@ function getCurrentPosition() {
   })
 }
 
+
 function speak(text) {
   if (window.speechSynthesis === undefined) {
     return Promise.reject(new Error('Speech synthesis is not available'))
@@ -69,4 +79,4 @@ function speak(text) {
 }
 
 //=============================================================================
-})
+})()

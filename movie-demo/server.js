@@ -24,8 +24,13 @@ function *movies() {
     lat,
     lng,
   }
-  let res = yield axios.get(GRACENOTE_URL, {params})
-  this.body = convertMovies(res.data)
+  try {
+    let res = yield axios.get(GRACENOTE_URL, {params})
+    this.body = convertMovies(res.data)
+  } catch (err) {
+    console.log(err)
+    this.body = []
+  }
 }
 
 function *ratingAndPoster() {
@@ -46,8 +51,8 @@ function *ratingAndPoster() {
   ].filter(x => !isNaN(x))
   let avgRating = ratings.reduce((a, b) => a + b, 0) / ratings.length
   this.body = {
-    rating: isNaN(avgRating) ? null : avgRating, 
-    poster: movie.Poster || null
+    rating: isNaN(avgRating) ? null : avgRating,
+    poster: movie.Poster === 'N/A' ? null : movie.Poster,
   }
 }
 
@@ -70,19 +75,24 @@ function *fakeRatingAndPoster() {
 
 // Simplify the content that you get from the Gracenote API.
 function convertMovies(movies) {
-  return movies.map(movie => {
+  let result = movies.map(movie => {
     let showtime = movie.showtimes[0]
     let time = moment(showtime.dateTime).format('h:mm A')
     return {
       title: movie.title,
       year: movie.releaseYear,
       genres: movie.genres,
+      rating: null,
+      poster: null,
       showtime: {
         time,
         venue: showtime.theatre.name
       },
     }
   })
+  // Only return the first 12 movies to save time during demo.
+  result = result.slice(0, 12)
+  return result
 }
 
 app.use(serve('.'))
