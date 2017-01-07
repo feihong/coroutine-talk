@@ -203,12 +203,25 @@ generator.next(7)
 # How does Promise.coroutine() work?
 
 - Takes a generator function
-- Outputs are promises
-- Inputs are the fulfilled values of promises
+- Invokes the generator function to get a generator
+- Extracts promises from generator
+- When promises are fulfilled, feeds those values back into generator
 - Promise chaining is used to preserve execution order
 
 ---
-# Live coding!
+# Live draw a diagram
+
+You can view the final diagram here:
+
+todo
+
+---
+# Live code a coroutine function
+
+Let's use our simple example to iteratively create a simple coroutine function.
+
+---
+# Starting point
 
 ```javascript
 const Promise = require('bluebird')
@@ -228,3 +241,29 @@ function *writeFiles() {
 
 let generator = writeFiles()
 ```
+
+---
+# What our coroutine function is missing
+
+- No type checking to make sure yielded objects are actually promises
+- Does not pass values back into the generator
+- Does not throw errors into generator (cannot use try/catch inside coroutine)
+
+---
+# A more complex coroutine example
+
+- Use `co.wrap()` to convert a generator function into a normal promise-returning function
+- Wrap geolocation and speech synthesis APIs into promise-returning functions
+- Use `jQuery.getJSON()` inside a coroutine
+- Use coroutines with [Vue](https://vuejs.org/) framework
+
+---
+# Libraries for working with coroutines
+
+- [co](https://github.com/tj/co)
+- [koa](http://koajs.com/)
+
+---
+# 完成
+
+Questions?
