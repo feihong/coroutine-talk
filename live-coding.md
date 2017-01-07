@@ -59,3 +59,42 @@ getNextPromise().then(() => {
   })
 })
 ```
+
+## Self-calling function
+
+```javascript
+function getNextPromise() {
+  let promise = generator.next().value
+  promise.then(() => getNextPromise())
+}
+
+getNextPromise()
+```
+
+## Handle the base case
+
+```javascript
+function getNextPromise() {
+  let promise = generator.next().value
+  if (promise === undefined) {
+    console.log('The generator is out of promises!')
+  } else {
+    promise.then(() => getNextPromise())
+  }
+}
+
+getNextPromise()
+```
+
+## Minor refinements
+
+```javascript
+function handleNextPromise() {
+  let promise = generator.next().value
+  if (promise !== undefined) {
+    promise.then(handlePromise)
+  }
+}
+
+handleNextPromise()
+```
