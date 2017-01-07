@@ -1,5 +1,9 @@
-.location, .status {
+.location, .status, progress {
   margin-bottom: 1rem;
+}
+
+progress {
+  width: 100%;
 }
 
 .movie {

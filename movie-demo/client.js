@@ -22,6 +22,8 @@ const main = co.wrap(function *() {
       '/rating', {title: movie.title, year: movie.year})
     movie.rating = data.rating
     movie.poster = data.poster
+
+    this.progressValue++
   }
 
   // All rating data has been downloaded, so sort movies by rating, descending.
@@ -45,6 +47,7 @@ const app = new Vue({
   data: {
     location: '',
     status: '',
+    progressValue: 0,
     movies: [],
   },
   created: main
