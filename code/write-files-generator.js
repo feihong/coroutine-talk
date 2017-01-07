@@ -7,6 +7,7 @@ function *writeFiles() {
   for (let i=0; i < fileNames.length; i++) {
     console.log(i + ' foobar')
     yield fs.writeFileAsync(fileNames[i], i + ' foobar')
+    console.log(i + ' sleep')
     yield Promise.delay(1000)
   }
   console.log('Done!')
@@ -14,16 +15,11 @@ function *writeFiles() {
 
 let generator = writeFiles()
 
-function handleGeneratorResult(result) {
-  if (result.done) {
-    console.log('Generator has no more values to process!')
-  } else {
-    let promise = result.value
-    promise.then(() => {
-      let newResult = generator.next()
-      handleGeneratorResult(newResult)
-    })
+function handleNextPromise() {
+  let promise = generator.next().value
+  if (promise !== undefined) {
+    promise.then(handlePromise)
   }
 }
 
-handleGeneratorResult(generator.next())
+handleNextPromise()
