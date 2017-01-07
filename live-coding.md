@@ -92,9 +92,26 @@ getNextPromise()
 function handleNextPromise() {
   let promise = generator.next().value
   if (promise !== undefined) {
-    promise.then(handlePromise)
+    promise.then(handleNextPromise)
   }
 }
 
 handleNextPromise()
+```
+
+## Create a custom coroutine() function
+
+```javascript
+function coroutine(generatorFunction) {
+  let generator = generatorFunction()
+
+  function handleNextPromise() {
+    let promise = generator.next().value
+    if (promise !== undefined) {
+      promise.then(handleNextPromise)
+    }
+  }
+
+  handleNextPromise()
+}
 ```
