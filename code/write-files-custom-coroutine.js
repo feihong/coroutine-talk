@@ -3,7 +3,7 @@ const fs = Promise.promisifyAll(require('fs'))
 
 let fileNames = ['a.txt', 'b.txt', 'c.txt']
 
-function *writeFiles() {
+coroutine(function *writeFiles() {
   for (let i=0; i < fileNames.length; i++) {
     console.log(i + ' foobar')
     yield fs.writeFileAsync(fileNames[i], i + ' foobar')
@@ -11,15 +11,17 @@ function *writeFiles() {
     yield Promise.delay(1000)
   }
   console.log('Done!')
-}
+})
 
-let generator = writeFiles()
+function coroutine(generatorFunction) {
+  let generator = generatorFunction()
 
-function handleNextPromise() {
-  let promise = generator.next().value
-  if (promise !== undefined) {
-    promise.then(handleNextPromise)
+  function handleNextPromise() {
+    let promise = generator.next().value
+    if (promise !== undefined) {
+      promise.then(handleNextPromise)
+    }
   }
-}
 
-handleNextPromise()
+  handleNextPromise()
+}
