@@ -19,7 +19,7 @@ https://github.com/feihong/coroutine-talk
 ---
 # What are coroutines?
 
-- Control flow for asynchronous code that doesn't use callbacks
+- Asynchronous control flow without callbacks
 - Implemented using promises and generators
 - Will become official language feature with the introduction of async/await syntax
 
@@ -190,4 +190,41 @@ generator.next(5)
 // Generator is done, sending additional values won't do anything.
 generator.next(6)
 generator.next(7)
+```
+
+---
+# A generator function is not like a normal function
+
+- Can produce multiple outputs
+- Can take multiple inputs
+- Control shifts back and forth between caller and callee
+
+---
+# How does Promise.coroutine() work?
+
+- Takes a generator function
+- Outputs are promises
+- Inputs are the fulfilled values of promises
+- Promise chaining is used to preserve execution order
+
+---
+# Live coding!
+
+```javascript
+const Promise = require('bluebird')
+const fs = Promise.promisifyAll(require('fs'))
+
+let fileNames = ['a.txt', 'b.txt', 'c.txt']
+
+function *writeFiles() {
+  for (let i=0; i < fileNames.length; i++) {
+    console.log(i + ' foobar')
+    yield fs.writeFileAsync(fileNames[i], i + ' foobar')
+    console.log(i + ' sleep')
+    yield Promise.delay(1000)
+  }
+  console.log('Done!')
+}
+
+let generator = writeFiles()
 ```
