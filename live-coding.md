@@ -45,19 +45,19 @@ function getNextPromise() {
   return generator.next().value
 }
 
-getNextPromise().then(() => {
-  getNextPromise().then(() => {
-    getNextPromise().then(() => {
-      getNextPromise().then(() => {
-        getNextPromise().then(() => {
-          getNextPromise().then(() => {
+getNextPromise().then(() =>
+  getNextPromise().then(() =>
+    getNextPromise().then(() =>
+      getNextPromise().then(() =>
+        getNextPromise().then(() =>
+          getNextPromise().then(() =>
             getNextPromise()
-          })
-        })
-      })
-    })
-  })
-})
+          )
+        )
+      )
+    )
+  )
+)
 ```
 
 ## Self-calling function
