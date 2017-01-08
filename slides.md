@@ -85,24 +85,28 @@ Promise.each(fileNames, (fileName, i) => {
 # Coroutine
 
 ```javascript
-const Promise = require('bluebird')
-const fs = Promise.promisifyAll(require('fs'))
+const co = require('co')
+const fs = require('fs-promise')
+const bluebird = require('bluebird')
 
 let fileNames = ['a.txt', 'b.txt', 'c.txt']
 
-Promise.coroutine(function *() {
+co(function *() {
   for (let i=0; i < fileNames.length; i++) {
     console.log(i + ' foobar')
-    yield fs.writeFileAsync(fileNames[i], i + ' foobar')
-    yield Promise.delay(1000)
+    yield fs.writeFile(fileNames[i], i + ' foobar')
+    yield bluebird.delay(1000)
   }
   console.log('Done!')
-})()
+})
 ```
 
 ---
 # What is a generator function?
 
+- Defined using `function *nameOfFunction()` syntax
+- Body usually contains `yield` expressions
+- Regardless of what value is `return`ed, invoking a generator function always returns a generator object
 
 ---
 # Generator functions can "return" multiple times
@@ -150,7 +154,7 @@ for (let x of generator) {
 # Alternate method of iterating over generator
 
 ```javascript
-generator = generatorFunction()
+let generator = generatorFunction()
 
 while (true) {
   let result = generator.next()
@@ -187,9 +191,9 @@ generator.next(2)
 generator.next(3)
 generator.next(4)
 generator.next(5)
-// Generator is done, sending additional values won't do anything.
-generator.next(6)
-generator.next(7)
+// Generator is done.
+generator.next(6)       // ignored
+generator.next(7)       // ignored
 ```
 
 ---
@@ -200,7 +204,7 @@ generator.next(7)
 - Control shifts back and forth between caller and callee
 
 ---
-# How does Promise.coroutine() work?
+# How does the co() function work?
 
 - Takes a generator function
 - Invokes the generator function to get a generator
@@ -218,23 +222,23 @@ todo
 ---
 # Live code a coroutine function
 
-Let's use our simple example to iteratively create a simple coroutine function.
+Let's use our simple example to iteratively create a function that executes coroutines.
 
 ---
 # Starting point
 
 ```javascript
-const Promise = require('bluebird')
-const fs = Promise.promisifyAll(require('fs'))
+const bluebird = require('bluebird')
+const fs = require('fs-promise')
 
 let fileNames = ['a.txt', 'b.txt', 'c.txt']
 
 function *writeFiles() {
   for (let i=0; i < fileNames.length; i++) {
     console.log(i + ' foobar')
-    yield fs.writeFileAsync(fileNames[i], i + ' foobar')
+    yield fs.writeFile(fileNames[i], i + ' foobar')
     console.log(i + ' sleep')
-    yield Promise.delay(1000)
+    yield bluebird.delay(1000)
   }
   console.log('Done!')
 }
@@ -262,6 +266,9 @@ let generator = writeFiles()
 
 - [co](https://github.com/tj/co)
 - [koa](http://koajs.com/)
+- [co-mocha](https://www.npmjs.com/package/co-mocha)
+- [And many more...](https://github.com/tj/co/wiki)
+
 
 ---
 # 完成
