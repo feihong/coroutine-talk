@@ -1,13 +1,14 @@
-const Promise = require('bluebird')
-const fs = Promise.promisifyAll(require('fs'))
+const co = require('co')
+const fs = require('fs-promise')
+const bluebird = require('bluebird')
 
 let fileNames = ['a.txt', 'b.txt', 'c.txt']
 
-Promise.coroutine(function *() {
+co(function *() {
   for (let i=0; i < fileNames.length; i++) {
     console.log(i + ' foobar')
-    yield fs.writeFileAsync(fileNames[i], i + ' foobar')
-    yield Promise.delay(1000)
+    yield fs.writeFile(fileNames[i], i + ' foobar')
+    yield bluebird.delay(1000)
   }
   console.log('Done!')
-})()
+})
