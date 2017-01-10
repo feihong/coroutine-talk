@@ -69,14 +69,15 @@ writeFiles(0, fileNames)
 # Promise
 
 ```javascript
-const Promise = require('bluebird')
-const fs = Promise.promisifyAll(require('fs'))
+const bluebird = require('bluebird')
+const fs = require('fs-promise')
 
 let fileNames = ['a.txt', 'b.txt', 'c.txt']
 
 Promise.each(fileNames, (fileName, i) => {
   console.log(i + ' foobar')
-  return fs.writeFileAsync(fileName, i + ' foobar').delay(1000)
+  return fs.writeFileAsync(fileName, i + ' foobar')
+  .then(() => .delay(1000))
 })
 .then(() => console.log('Done!'))
 ```
@@ -104,7 +105,7 @@ co(function *() {
 ---
 # What is a generator function?
 
-- Defined using `function *nameOfFunction()` syntax
+- Defined using `function *()` syntax
 - Body usually contains `yield` expressions
 - Regardless of what value is `return`ed, invoking a generator function always returns a generator object
 
@@ -124,9 +125,8 @@ function *generatorFunction() {
 # Generator functions return a generator
 
 ```javascript
-generator = generatorFunction()
+let generator = generatorFunction()
 
-console.log('First for loop:')
 for (let x of generator) {
   console.log(x)
 }
@@ -136,7 +136,7 @@ for (let x of generator) {
 # Once generators are done, they can't be iterated anymore
 
 ```javascript
-generator = generatorFunction()
+let generator = generatorFunction()
 
 console.log('First for loop:')
 for (let x of generator) {
@@ -197,7 +197,7 @@ generator.next(7)       // ignored
 ```
 
 ---
-# A generator function is not like a normal function
+# Ways in which a generator function is not like a normal function
 
 - Can produce multiple outputs
 - Can take multiple inputs
@@ -210,7 +210,7 @@ generator.next(7)       // ignored
 - Invokes the generator function to get a generator
 - Extracts promises from generator
 - When promises are fulfilled, feeds those values back into generator
-- Promise chaining is used to preserve execution order
+- A promise is `then`ed to the next promise to preserve execution order
 
 ---
 # Live draw a diagram
@@ -255,6 +255,8 @@ let generator = writeFiles()
 
 ---
 # A more complex coroutine example
+
+Demonstrates how to
 
 - Use `co.wrap()` to convert a generator function into a normal promise-returning function
 - Wrap geolocation and speech synthesis APIs into promise-returning functions
