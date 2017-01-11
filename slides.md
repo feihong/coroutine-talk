@@ -74,10 +74,10 @@ const fs = require('fs-promise')
 
 let fileNames = ['a.txt', 'b.txt', 'c.txt']
 
-Promise.each(fileNames, (fileName, i) => {
+bluebird.each(fileNames, (fileName, i) => {
   console.log(i + ' foobar')
-  return fs.writeFileAsync(fileName, i + ' foobar')
-  .then(() => .delay(1000))
+  return fs.writeFile(fileName, i + ' foobar')
+  .then(() => bluebird.delay(1000))
 })
 .then(() => console.log('Done!'))
 ```
